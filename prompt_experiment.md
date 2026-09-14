@@ -231,3 +231,65 @@ Output Format
 intent
 urgency
 action
+# Week 02 Day 2 - Test Results
+
+## Test 1
+Input:
+您好，我们希望了解一下目前项目的阶段性进展，请在本周五前提供一份简要报告，谢谢。
+
+Result:
+intent = 询问项目阶段性进展并索取简要报告
+urgency = 中
+
+Assessment:
+合理。
+
+## Test 2
+Input:
+您好，我想了解一下贵司是否支持小规模试用，以及试用周期大概是多久？
+
+Result:
+intent = 咨询试用支持及周期
+urgency = 低
+
+Assessment:
+合理。
+
+## Test 3
+Input:
+客户现场出现严重问题，请今天17:00前给出处理方案，否则将影响明天的项目上线。
+
+Result:
+intent = 索取客户现场严重问题的处理方案
+urgency = 高
+
+Assessment:
+合理。
+
+## Test 4
+Input:
+您好，昨天发送的项目资料我们已经收到，感谢您的配合。
+
+Result:
+intent = 确认已收到项目资料并致谢
+urgency = 低
+
+Assessment:
+合理。
+
+## Test 5
+Input:
+您好，目前自动驾驶项目已经进入联调阶段。请您把最新版测试报告和报价单发给我们，同时确认一下下周三上午是否方便召开项目评审会。
+
+Result:
+intent = 索取测试报告和报价单并确认评审会时间
+urgency = 中
+
+Assessment:
+合理。
+
+## 当前发现的问题
+
+1. 多意图邮件如何定义主意图。
+2. urgency 中“近期截止”和“紧急截止”的边界需要进一步明确。
+3. 明天需要通过 10 条测试进一步验证 Prompt。
