@@ -220,3 +220,14 @@ Constraints
 Output Format
 
 而不是单纯把 Prompt 写得更长。
+
+# Week 02 Day 2 - Schema Design
+
+## 邮件分类器
+
+### Schema
+
+```text
+intent
+urgency
+action
