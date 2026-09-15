@@ -1,0 +1,92 @@
+TEST_CASES = [
+    {
+        "id": 1,
+        "email": "您好，我们想了解一下目前项目的阶段性进展，请在本周五前提供一份简要报告，谢谢。",
+        "expected_intent": "询问项目进展",
+        "expected_urgency": "中",
+    },
+    {
+        "id": 2,
+        "email": "您好，我想了解一下贵司是否支持小规模试用，以及试用周期大概是多久？",
+        "expected_intent": "咨询试用支持及周期",
+        "expected_urgency": "低",
+    },
+    {
+        "id": 3,
+        "email": "客户现场出现严重问题，请今天17:00前给出处理方案，否则将影响明天的项目上线。",
+        "expected_intent": "请求处理客户现场问题",
+        "expected_urgency": "高",
+    },
+    {
+        "id": 4,
+        "email": "您好，昨天发送的项目资料我们已经收到，感谢您的配合。",
+        "expected_intent": "确认收到项目资料",
+        "expected_urgency": "低",
+    },
+    {
+        "id": 5,
+        "email": "您好，目前自动驾驶项目已经进入联调阶段。请您把最新版测试报告和报价单发给我们，同时确认一下下周三上午是否方便召开项目评审会。",
+        "expected_intent": "索取项目资料并确认会议安排",
+        "expected_urgency": "中",
+    },
+    {
+        "id": 6,
+        "email": "请问上次发送的报价单是否已经收到？如有问题请及时反馈。",
+        "expected_intent": "确认报价单",
+        "expected_urgency": "低",
+    },
+    {
+        "id": 7,
+        "email": "我们的测试环境今天出现异常，请尽快协助定位原因，下午还要继续进行联调。",
+        "expected_intent": "请求处理测试环境异常",
+        "expected_urgency": "高",
+    },
+    {
+        "id": 8,
+        "email": "您好，方便的时候请发我一份最新版产品介绍和技术文档，我想先了解一下。",
+        "expected_intent": "索取产品资料",
+        "expected_urgency": "低",
+    },
+    {
+        "id": 9,
+        "email": "麻烦您确认一下下周三上午是否可以参加项目评审会议，如果不方便请提供其他时间。",
+        "expected_intent": "确认会议安排",
+        "expected_urgency": "中",
+    },
+    {
+        "id": 10,
+        "email": "客户要求我们在明天上午之前提交最终测试报告，否则将影响项目验收。",
+        "expected_intent": "提交最终测试报告",
+        "expected_urgency": "高",
+    },
+        {
+        "id": 11,
+        "email": "您好，方便的时候帮忙看一下这个方案，看看有没有问题。",
+        "expected_intent": "审核方案",
+        "expected_urgency": "低",
+    },
+    {
+        "id": 12,
+        "email": "这件事情比较重要，麻烦尽快处理。",
+        "expected_intent": "请求处理事项",
+        "expected_urgency": "中",
+    },
+    {
+        "id": 13,
+        "email": "您好，项目报告什么时候可以给？客户明天下午就要开评审会了。",
+        "expected_intent": "询问项目报告进度",
+        "expected_urgency": "高",
+    },
+    {
+        "id": 14,
+        "email": "感谢您昨天提供的资料。我们内部讨论后，如果有进一步问题会再联系您。",
+        "expected_intent": "确认收到资料",
+        "expected_urgency": "低",
+    },
+    {
+        "id": 15,
+        "email": "您好，请把最新测试报告发给我。如果今天来不及，明天上午之前给也可以。",
+        "expected_intent": "索取测试报告",
+        "expected_urgency": "高",
+    },
+]
