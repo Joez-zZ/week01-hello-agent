@@ -1,204 +1,146 @@
 import json
-import os
+import time
 from typing import Literal
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 
-# =========================
-# 1. 定义 Agent 的输出结构
-# =========================
+load_dotenv()
+
+api_key = __import__("os").getenv("DEEPSEEK_API_KEY")
+
+if not api_key:
+    raise ValueError("未找到 DEEPSEEK_API_KEY，请检查 .env 文件")
+
+
+client = OpenAI(
+    api_key=api_key,
+    base_url="https://api.deepseek.com"
+)
+
 
 class EmailResult(BaseModel):
     intent: str
     urgency: Literal["低", "中", "高"]
     action: str
 
-# =========================
-# 2. 加载环境变量
-# =========================
 
-load_dotenv()
+SYSTEM_PROMPT = """
+你是一个专业的邮件分类助手。
 
-api_key = os.getenv("DEEPSEEK_API_KEY")
+你的任务是分析用户提供的邮件，并输出 JSON。
 
-if not api_key:
-    raise ValueError(
-        "没有找到 DEEPSEEK_API_KEY，请检查 .env 文件。"
-    )
+字段说明：
+
+1. intent
+描述邮件的主要意图。
+如果存在多个意图，只选择最主要、最需要处理的那个。
+不要把“尽快”“麻烦”“谢谢”等礼貌或紧迫表达直接作为 intent。
+
+2. urgency
+只能输出：
+低 / 中 / 高
+
+判断规则：
+- 高：
+  今天、明天、24小时内等明确短期限；
+  或存在严重问题，可能影响项目、交付、上线、验收、测试等。
+- 中：
+  有明确任务，但截止时间距离现在超过24小时；
+  或只说“尽快”“麻烦处理”“比较重要”等，没有明确短期限或严重后果。
+- 低：
+  普通咨询、确认、感谢、资料请求等，没有明显时间压力。
+
+特别注意：
+“本周”“下周”但没有明确指向今天或明天时，通常判定为“中”。
+
+3. action
+给出一个具体、可执行的下一步行动。
+
+只输出合法 JSON，不要输出 Markdown，不要输出解释文字。
+
+格式：
+
+{
+  "intent": "...",
+  "urgency": "低/中/高",
+  "action": "..."
+}
+"""
 
 
-# =========================
-# 3. 创建客户端
-# =========================
-
-client = OpenAI(
-    api_key=api_key,
-    base_url="https://api.deepseek.com",
-)
-
-
-# =========================
-# 4. Agent 主函数
-# =========================
-
-def classify_email(email: str) -> EmailResult:
+def classify_email_once(email_text: str) -> EmailResult:
     """
-    输入自然语言任务，
-    返回结构化的 TaskResult。
+    只负责执行一次模型调用。
+    如果模型调用、JSON 解析或结构校验失败，就直接抛出异常。
     """
 
     response = client.responses.create(
         model="deepseek-v4-flash",
-        instructions="""
-你是一个专业的企业邮件分析助手。
-
-你的任务是阅读一封邮件，并提取以下三个字段：
-
-1. intent
-2. urgency
-3. action
-
-【intent：邮件意图】
-
-用简洁的中文短语描述邮件要求完成的主要事项。
-
-不要把“尽快”“麻烦”“谢谢”等礼貌或催促语气作为 intent 的核心内容。
-
-例如：
-
-“这件事情比较重要，麻烦尽快处理。”
-
-intent 应概括为：
-“请求处理事项”
-
-而不是：
-“催促尽快处理重要事项”
-
-【urgency：紧急程度】
-
-只能选择：
-- 高
-- 中
-- 低
-
-判断规则：
-
-高：
-- 邮件明确要求今天完成
-- 邮件明确要求明天完成
-- 邮件存在 24 小时以内的明确截止时间
-- 邮件明确说明延误会影响上线、验收、交付等关键结果
-- 已经发生严重问题，并且正在影响当前工作、测试或联调
-
-中：
-- 邮件要求在 2 天以后完成
-- 邮件只有“尽快”“麻烦处理”“比较重要”等表达，
-  但没有明确截止时间，也没有明确严重后果
-- 有明确任务要求，但当前没有立即风险
-
-低：
-- 没有明确时间要求
-- 没有明显紧迫性
-- 普通咨询
-- 感谢
-- 确认信息
-- 一般资料索取
-
-特别规则：
-
-1. “尽快”本身不能判定为高。
-2. “本周”“下周”等时间表达，
-   如果不是今天或明天，默认判定为中。
-3. 如果明确给出具体日期，
-   只有距离当前时间不超过 24 小时才判定为高。
-4. 如果存在“否则会影响上线/验收/交付”等明确后果，
-   即使没有具体时间，也可以判定为高。
-
-【action：下一步行动】
-
-描述收到邮件后最应该采取的下一步动作。
-
-要求：
-- 必须具体
-- 必须可执行
-- 尽量包含必要的对象和时间要求
-- 如果邮件明确提出截止时间，应在 action 中体现
-
-【输出要求】
-
-只返回 JSON。
-
-必须包含：
-
-{
-  "intent": "...",
-  "urgency": "...",
-  "action": "..."
-}
-
-urgency 必须严格使用：
-高 / 中 / 低
-
-不要输出 Markdown。
-不要输出 ```json。
-不要输出解释。
-不要添加其他字段。
-""",
-        input=email,
+        instructions=SYSTEM_PROMPT,
+        input=email_text,
     )
 
-    raw_text = response.output_text
+    content = response.output_text
 
-    # JSON 解析
-    try:
-        data = json.loads(raw_text)
-    except json.JSONDecodeError:
-        raise ValueError(
-            f"模型返回的内容不是合法 JSON：\n{raw_text}"
-        )
+    data = json.loads(content)
 
-    # Schema 验证
-    try:
-        result = EmailResult.model_validate(data)
-    except ValidationError as e:
-        raise ValueError(
-            f"模型返回的数据不符合要求：\n{e}"
-        )
+    result = EmailResult.model_validate(data)
 
     return result
 
 
-# =========================
-# 5. 程序入口
-# =========================
+def classify_email(
+    email_text: str,
+    max_retries: int = 3
+) -> EmailResult:
+    """
+    带重试和兜底机制的邮件分类函数。
+    """
 
-def main():
-    email = input("请输入邮件内容：").strip()
+    for attempt in range(1, max_retries + 1):
+        try:
+            result = classify_email_once(email_text)
 
-    if not email:
-        print("错误：邮件内容不能为空。")
-        return
+            print(f"第 {attempt} 次调用成功")
 
-    try:
-        result = classify_email(email)
+            return result
 
-    except Exception as e:
-        print("\n程序运行失败：")
-        print(e)
-        return
+        except Exception as e:
+            print(f"第 {attempt} 次调用失败：{e}")
 
-    print("\n最终结构化结果：")
-    print(result)
+            if attempt < max_retries:
+                wait_seconds = attempt
 
-    print("\n最终 JSON：")
-    print(result.model_dump_json(
-        indent=2,
-        ensure_ascii=False
-    ))
+                print(
+                    f"{wait_seconds} 秒后进行第 "
+                    f"{attempt + 1} 次重试..."
+                )
+
+                time.sleep(wait_seconds)
+
+    print("连续重试失败，进入兜底机制。")
+
+    return EmailResult(
+        intent="无法判断",
+        urgency="中",
+        action="请人工查看该邮件"
+    )
 
 
 if __name__ == "__main__":
-    main()
+    email = input("请输入邮件内容：").strip()
+
+    if not email:
+        print("邮件内容不能为空")
+    else:
+        try:
+            result = classify_email(email)
+
+            print("\n分类结果：")
+            print(result.model_dump_json(indent=2, ensure_ascii=False))
+
+        except Exception as e:
+            print(f"程序发生未预期错误：{e}")
