@@ -40,3 +40,10 @@ week01-hello-agent/
 ├── main.py
 ├── README.md
 └── requirements.txt
+
+## Demo
+
+运行：
+
+```bash
+python demo.py
