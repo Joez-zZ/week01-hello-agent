@@ -89,4 +89,33 @@ TEST_CASES = [
         "expected_intent": "索取测试报告",
         "expected_urgency": "高",
     },
+    {"id": 16,
+    "email": "请帮我确认一下这个方案有没有问题，方便的时候回复我。",
+    "expected_intent": "审核方案",
+    "expected_urgency": "低",
+},
+
+{   "id": 17,
+    "email": "客户已经在会议室等我们了，请马上把最终版本发过来。",
+    "expected_intent": "发送最终版本",
+    "expected_urgency": "高",
+},
+
+{"id": 18,
+    "email": "下周三之前把项目文档整理完成即可。",
+    "expected_intent": "整理项目文档",
+    "expected_urgency": "中",
+},
+
+{"id": 19,
+    "email": "谢谢你的帮助，资料我已经收到了。",
+    "expected_intent": "确认收到资料",
+    "expected_urgency": "低",
+},
+
+{"id": 20,
+    "email": "测试环境又出现严重故障，目前整个联调已经无法继续，请尽快处理。",
+    "expected_intent": "处理测试环境故障",
+    "expected_urgency": "高",
+},
 ]

@@ -25,7 +25,9 @@ def run_demo():
         print(f"  Intent   : {result.intent}")
         print(f"  Urgency  : {result.urgency}")
         print(f"  Action   : {result.action}")
-
+    print("\n" + "=" * 60)
+    print("Demo finished.")
+    print("=" * 60)
 
 if __name__ == "__main__":
     run_demo()

@@ -76,7 +76,21 @@ def main():
         f"{urgency_correct}/{total} "
         f"({urgency_correct / total:.1%})"
     )
+    print("\n" + "=" * 60)
+    print("Evaluation Summary")
+    print("=" * 60)
 
+    print(
+        f"Intent Accuracy: "
+        f"{intent_correct}/{total} = "
+        f"{intent_correct / total:.1%}"
+    )
+
+    print(
+        f"Urgency Accuracy: "
+        f"{urgency_correct}/{total} = "
+        f"{urgency_correct / total:.1%}"
+    )
 
 if __name__ == "__main__":
     main()
