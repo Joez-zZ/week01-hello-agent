@@ -1,0 +1,10 @@
+AI Agent 学习记录
+
+Week 1:
+完成 LLM API 和 Structured Output。
+
+Week 2:
+完成 Prompt、Evaluation、Retry 和 Fallback。
+
+Week 3:
+开始学习 Tool Calling。
