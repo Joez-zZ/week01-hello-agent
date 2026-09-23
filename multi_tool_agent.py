@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 
@@ -102,7 +103,69 @@ tools = [
             },
         },
     },
+    {
+    "type": "function",
+    "function": {
+        "name": "csv_summary",
+        "description": (
+            "读取 CSV 文件并返回基本信息，"
+            "包括数据行数、列名和前几条数据。"
+            "当用户要求查看 CSV 的结构、"
+            "数据量、列信息或简单预览时使用。"
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string",
+                    "description": (
+                        "需要读取的 CSV 文件名，"
+                        "例如 sales.csv"
+                    ),
+                },
+            },
+            "required": ["filename"],
+        },
+    },
+},
 ]
+def csv_summary(filename: str) -> str:
+    """
+    读取 CSV 文件并返回基本信息。
+    """
+
+    if not os.path.exists(filename):
+        return f"文件不存在：{filename}"
+
+    try:
+        with open(
+            filename,
+            "r",
+            encoding="utf-8-sig",
+            newline=""
+        ) as f:
+
+            reader = csv.DictReader(f)
+
+            rows = list(reader)
+
+            columns = reader.fieldnames or []
+
+        result = {
+            "filename": filename,
+            "row_count": len(rows),
+            "columns": columns,
+            "preview": rows[:3],
+        }
+
+        return json.dumps(
+            result,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    except Exception as e:
+        return f"读取 CSV 失败：{e}"
 def execute_tool(tool_name: str, arguments: dict):
     if tool_name == "calculator":
         return calculator(
@@ -115,20 +178,25 @@ def execute_tool(tool_name: str, arguments: dict):
         return read_file(
             filename=arguments["filename"]
         )
-
+    if tool_name == "csv_summary":
+        return csv_summary(
+            filename=arguments["filename"]
+        )
     raise ValueError(f"未知工具：{tool_name}")
 def run_agent(user_input: str):
 
     messages = [
         {
-            "role": "system",
-            "content": (
-                "你是一个可以使用工具完成任务的助手。"
-                "如果任务需要计算，请使用 calculator。"
-                "如果任务需要读取本地文本文件，请使用 read_file。"
-                "如果不需要工具，可以直接回答。"
-            ),
-        },
+    "role": "system",
+    "content": (
+        "你是一个可以使用工具完成任务的助手。"
+        "如果任务需要数学计算，请使用 calculator。"
+        "如果任务需要读取普通文本文件，请使用 read_file。"
+        "如果任务需要查看 CSV 文件的数据结构、"
+        "行数、列名或数据预览，请使用 csv_summary。"
+        "如果不需要工具，可以直接回答。"
+    ),
+     },
         {
             "role": "user",
             "content": user_input,
